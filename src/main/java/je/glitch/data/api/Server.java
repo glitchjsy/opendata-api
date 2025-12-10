@@ -20,12 +20,12 @@ import je.glitch.data.api.services.*;
 import je.glitch.data.api.utils.ErrorType;
 import je.glitch.data.api.utils.HttpException;
 import lombok.Getter;
-import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.session.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.GeneralSecurityException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +61,7 @@ public class Server {
     private final ErrorController errorController;
     private final FoiController foiController;
     private final CourtController courtController;
+    private final PetitionController petitionController;
 
     private final AdminUsersController adminUsersController;
     private final AdminTokensController adminTokensController;
@@ -68,6 +69,8 @@ public class Server {
 
     private final AuthController authController;
     private final MeController meController;
+
+    private final EmailService emailService;
 
     private final RedisCache cache;
 
@@ -86,7 +89,17 @@ public class Server {
         this.errorController = new ErrorController();
         this.foiController = new FoiController(new FoiService(connection));
         this.courtController = new CourtController(new CourtService(connection));
-        this.authController = new AuthController(new AuthService(connection));
+        this.petitionController = new PetitionController(connection);
+
+        try {
+            this.emailService = new EmailService();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        this.authController = new AuthController(new AuthService(connection, emailService));
         this.meController = new MeController(new ApiKeyService(connection), new UserService(connection));
         this.adminUsersController = new AdminUsersController(connection);
         this.adminTokensController = new AdminTokensController(connection);
@@ -240,12 +253,15 @@ public class Server {
         app.get("/v1/charts/driving-test-results", simpleEndpointController::handleGetDrivingResultsChart);
         app.get("/v1/charts/monthly-rainfall", simpleEndpointController::handleGetMonthlyRainfallChart);
         app.get("/v1/charts/registered-vehicles", simpleEndpointController::handleGetRegisteredVehiclesChart);
+        app.get("/v1/charts/petition-stats", petitionController::handleGetPetitionStats);
 
         app.get("/v1/bus/routes", busController::handleGetRoutes);
         app.get("/v1/bus/stops", busController::handleGetStops);
         app.get("/v1/bus/stops/{id}", busController::handleGetStop);
         app.get("/v1/bus/live-updates", busController::handleGetLiveUpdates);
         app.get("/v1/bus/live-updates-minimal", busController::handleGetMinUpdates);
+
+        app.get("/v1/petitions", petitionController::handleGetPetitions);
 
         app.get("/admin/users", adminUsersController::handleGetUsers);
         app.post("/admin/users/new", adminUsersController::handleCreateUser);
@@ -261,6 +277,7 @@ public class Server {
 
         app.post("/auth/login", authController::handleLogin);
         app.post("/auth/register", authController::handleRegister);
+        app.post("/auth/verify-email", authController::handleVerifyEmail);
 
         app.get("/me/session", meController::handleGetSession);
         app.get("/me/api-keys", meController::handleListApiKeys);

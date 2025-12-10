@@ -37,6 +37,23 @@ public class UserTable implements ITable {
         }
     }
 
+    public User getUserByEmailVerificationToken(String token) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM users WHERE emailVerificationToken = ?");
+            stmt.setString(1, token);
+
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    return User.of(result);
+                }
+                return null;
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return null;
+        }
+    }
+
     public boolean checkUserExists(String email) {
         String sql = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
         try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -78,14 +95,15 @@ public class UserTable implements ITable {
      * @return true if creation was successful
      */
     public boolean createUser(User user) {
-        String sql = "INSERT INTO users (id, email, password, siteAdmin) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (id, email, password, emailVerificationToken, siteAdmin) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, user.getId());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPassword());
-            stmt.setBoolean(4, user.isSiteAdmin());
+            stmt.setString(4, user.getEmailVerificationToken());
+            stmt.setBoolean(5, user.isSiteAdmin());
 
             return stmt.executeUpdate() > 0;
         } catch (Exception ex) {
@@ -106,6 +124,22 @@ public class UserTable implements ITable {
 
             stmt.setString(1, user.getEmail());
             stmt.setBoolean(2, user.isSiteAdmin());
+            stmt.setString(3, user.getId());
+
+            return stmt.executeUpdate() > 0;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean setEmailVerified(User user) {
+        String sql = "UPDATE users SET emailVerified = ?, emailVerificationToken = ? WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, true);
+            stmt.setString(2, null);
             stmt.setString(3, user.getId());
 
             return stmt.executeUpdate() > 0;

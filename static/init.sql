@@ -213,6 +213,9 @@ CREATE TABLE `users` (
     `updatedAt` timestamp DEFAULT current_timestamp ON UPDATE current_timestamp,
     `email` varchar(200) NOT NULL,
     `password` varchar(60) NOT NULL,
+    `emailVerificationToken` varchar(40),
+    `passwordResetToken` varchar(40),
+    `emailVerified` boolean DEFAULT 0 NOT NULL,
     `siteAdmin` boolean DEFAULT 0 NOT NULL,
     PRIMARY KEY (`id`)
 );
@@ -237,5 +240,62 @@ CREATE TABLE `apiRequests` (
     `userAgent` varchar(255),
     `apiTokenId` varchar(40),
     FOREIGN KEY (`apiTokenId`) REFERENCES `apiTokens`(`id`) ON DELETE SET NULL,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `petitions` (
+    `id` bigint NOT NULL,
+    `createdAt` datetime DEFAULT current_timestamp NOT NULL,
+    `updatedAt` datetime,
+    `openedAt` datetime,
+    `closedAt` datetime,
+    `rejectedAt` datetime,
+    `moderationThresholdReachedAt` datetime,
+    `responseThresholdReachedAt` datetime,
+    `debateThresholdReachedAt` datetime,
+    `scheduledDebateDate` datetime,
+    `debateOutcomeAt` datetime,
+    `state` varchar(50),
+    `creatorName` varchar(150),
+    `title` text NOT NULL,
+    `summary` text NOT NULL,
+    `description` text,
+    `signatureCount` int,
+    `rejectionCode` varchar(50),
+    `rejectionDetails` text,
+    `fullyProcessedClosed` boolean DEFAULT FALSE NOT NULL,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `petitionMinistersResponses` (
+    `id` int AUTO_INCREMENT NOT NULL,
+    `createdAt` datetime NOT NULL,
+    `updatedAt` datetime NOT NULL,
+    `publishedOn` date NOT NULL,
+    `petitionId` bigint NOT NULL,
+    `summary` text,
+    `description` text,
+    FOREIGN KEY (`petitionId`) REFERENCES `petitions`(`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `petitionDebates` (
+    `id` int AUTO_INCREMENT NOT NULL,
+    `debatedOn` date NOT NULL,
+    `petitionId` bigint NOT NULL,
+    `transcriptUrl` varchar(255),
+    `videoUrl` varchar(255),
+    `debatePackUrl` varchar(255),
+    `overview` text,
+    FOREIGN KEY (`petitionId`) REFERENCES `petitions`(`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `petitionSignaturesByParish` (
+    `id` int AUTO_INCREMENT NOT NULL,
+    `petitionId` bigint NOT NULL,
+    `parishName` varchar(50),
+    `signatureCount` int,
+    FOREIGN KEY (`petitionId`) REFERENCES `petitions`(`id`) ON DELETE CASCADE,
     PRIMARY KEY (`id`)
 );

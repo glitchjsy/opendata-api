@@ -1,10 +1,7 @@
 package je.glitch.data.api.controllers;
 
 import io.javalin.http.Context;
-import je.glitch.data.api.models.LoginBody;
-import je.glitch.data.api.models.Session;
-import je.glitch.data.api.models.SessionResponse;
-import je.glitch.data.api.models.User;
+import je.glitch.data.api.models.*;
 import je.glitch.data.api.services.AuthService;
 import je.glitch.data.api.utils.ErrorResponse;
 import je.glitch.data.api.utils.ErrorType;
@@ -42,5 +39,34 @@ public class AuthController {
     }
 
     public void handleRegister(Context ctx) {
+        RegisterBody registerBody = ctx.bodyAsClass(RegisterBody.class);
+
+        try {
+            boolean status = service.register(registerBody);
+
+            if (!status) {
+                ctx.status(401).json(new ErrorResponse(ErrorType.INVALID_REQUEST, "A user with that email address already exists"));
+                return;
+            }
+            ctx.status(200).result();
+        } catch (IllegalArgumentException ex) {
+            ctx.status(400).json(new ErrorResponse(ErrorType.INVALID_REQUEST, ex.getMessage()));
+        }
+    }
+
+    public void handleVerifyEmail(Context ctx) {
+        VerifyEmailBody body = ctx.bodyAsClass(VerifyEmailBody.class);
+
+        try {
+            boolean status = service.verifyEmail(body);
+
+            if (!status) {
+                ctx.status(401).json(new ErrorResponse(ErrorType.INVALID_REQUEST, "Failed to verify email"));
+                return;
+            }
+            ctx.status(200).result();
+        } catch (IllegalArgumentException ex) {
+            ctx.status(400).json(new ErrorResponse(ErrorType.INVALID_REQUEST, ex.getMessage()));
+        }
     }
 }

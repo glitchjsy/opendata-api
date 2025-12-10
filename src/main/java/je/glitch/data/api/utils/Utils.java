@@ -1,6 +1,9 @@
 package je.glitch.data.api.utils;
 
+import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import je.glitch.data.api.Config;
+import je.glitch.data.api.Server;
 import je.glitch.data.api.database.MySQLConnection;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,6 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class Utils {
-    public static final String TEMP_ADMIN_API_KEY = "CHANGEME";
     public static final Pattern DATE_FORMAT = Pattern.compile("^\\d{4}[-/]\\d{2}[-/]\\d{2}$");
 
     private static final RuntimeMXBean RUNTIME_BEAN = ManagementFactory.getRuntimeMXBean();
@@ -193,7 +195,7 @@ public class Utils {
         return parseInt(raw);
     }
 
-    public static  Double parseDouble(String raw) {
+    public static Double parseDouble(String raw) {
         try {
             return Double.parseDouble(raw);
         } catch (Exception ignored) {
@@ -206,6 +208,26 @@ public class Utils {
             return null;
         }
         return parseDouble(raw);
+    }
+
+    public static boolean verifyRecaptchaToken(String token) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + Config.getRecaptchaSecret() + "&response=" + token;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonObject json = Server.GSON.fromJson(response.body(), JsonObject.class);
+
+            return json.has("success") && json.get("success").getAsBoolean();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 

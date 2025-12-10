@@ -1,6 +1,7 @@
 package je.glitch.data.api.database;
 
 import com.zaxxer.hikari.HikariDataSource;
+import je.glitch.data.api.Config;
 import je.glitch.data.api.database.tables.*;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class MySQLConnection {
     private final LogTable logTable;
     private final FoiTable foiTable;
     private final CourtTable courtTable;
+    private final PetitionTable petitionTable;
 
     public MySQLConnection() {
         this.connect();
@@ -26,12 +28,13 @@ public class MySQLConnection {
         this.logTable = new LogTable(dataSource);
         this.foiTable = new FoiTable(dataSource);
         this.courtTable = new CourtTable(dataSource);
+        this.petitionTable = new PetitionTable(dataSource);
     }
 
     private void connect() {
-        dataSource.setJdbcUrl("jdbc:mysql://localhost/opendata");
+        dataSource.setJdbcUrl("jdbc:mysql://localhost/" + Config.getMysqlDatabase());
         dataSource.setUsername("root");
-        dataSource.setPassword("password123");
+        dataSource.setPassword(Config.getMysqlPassword());
         dataSource.setMaxLifetime(1800000);
     }
 }

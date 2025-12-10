@@ -19,9 +19,9 @@ public class LogTable implements ITable {
 
     public boolean trackRequest(String method, String path, int statusCode, String ipAddress, String userAgent, String apiTokenId) {
         String sql = """
-        INSERT INTO apiRequests (id, method, path, statusCode, ipAddress, userAgent, apiTokenId)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+                INSERT INTO apiRequests (id, method, path, statusCode, ipAddress, userAgent, apiTokenId)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
 
         String id = UUID.randomUUID().toString();
 
@@ -49,12 +49,12 @@ public class LogTable implements ITable {
 
     public ApiRequestStatsEntity getRequestStats() {
         String sql = """
-            SELECT
-                (SELECT COUNT(*) FROM apiRequests) AS totalAllTime,
-                (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 1 DAY) AS total24Hours,
-                (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 7 DAY) AS total7Days,
-                (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 30 DAY) AS total30Days
-        """;
+                    SELECT
+                        (SELECT COUNT(*) FROM apiRequests) AS totalAllTime,
+                        (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 1 DAY) AS total24Hours,
+                        (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 7 DAY) AS total7Days,
+                        (SELECT COUNT(*) FROM apiRequests WHERE createdAt >= NOW() - INTERVAL 30 DAY) AS total30Days
+                """;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql);
@@ -76,14 +76,14 @@ public class LogTable implements ITable {
 
     public List<DailyRequestStatEntity> getDailyStatsForMonth(int year, int month) {
         String sql = """
-            SELECT DATE(createdAt) AS day,
-                   CASE WHEN apiTokenId IS NULL THEN 'unauthenticated' ELSE 'authenticated' END AS authStatus,
-                   COUNT(*) AS total
-            FROM apiRequests
-            WHERE YEAR(createdAt) = ? AND MONTH(createdAt) = ?
-            GROUP BY DATE(createdAt), authStatus
-            ORDER BY day ASC
-        """;
+                    SELECT DATE(createdAt) AS day,
+                           CASE WHEN apiTokenId IS NULL THEN 'unauthenticated' ELSE 'authenticated' END AS authStatus,
+                           COUNT(*) AS total
+                    FROM apiRequests
+                    WHERE YEAR(createdAt) = ? AND MONTH(createdAt) = ?
+                    GROUP BY DATE(createdAt), authStatus
+                    ORDER BY day ASC
+                """;
 
         List<DailyRequestStatEntity> stats = new ArrayList<>();
 
@@ -110,9 +110,9 @@ public class LogTable implements ITable {
 
     public List<EndpointRequestStatEntity> getTopEndpoints(Integer year, Integer month) {
         String baseSql = """
-            SELECT path, COUNT(*) AS total
-            FROM apiRequests
-        """;
+                    SELECT path, COUNT(*) AS total
+                    FROM apiRequests
+                """;
 
         String whereClause = "";
         if (year != null && month != null && year > 0 && month > 0) {

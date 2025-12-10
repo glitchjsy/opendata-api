@@ -40,6 +40,9 @@ public class AdminUsersController {
                 null,
                 bodyUser.getEmail(),
                 hashedPassword,
+                null,
+                null,
+                false,
                 bodyUser.isSiteAdmin()
         );
 
@@ -73,6 +76,9 @@ public class AdminUsersController {
                 null,
                 bodyUser.getEmail(),
                 null,
+                null,
+                null,
+                false,
                 bodyUser.isSiteAdmin()
         );
 

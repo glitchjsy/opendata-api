@@ -13,6 +13,9 @@ public class User {
     private final Timestamp updatedAt;
     private final String email;
     private final String password;
+    private final String passwordResetToken;
+    private final String emailVerificationToken;
+    private final boolean emailVerified;
     private final boolean siteAdmin;
 
     public static User of(ResultSet result) throws SQLException {
@@ -22,6 +25,9 @@ public class User {
                 result.getTimestamp("updatedAt"),
                 result.getString("email"),
                 result.getString("password"),
+                result.getString("passwordResetToken"),
+                result.getString("emailVerificationToken"),
+                result.getBoolean("emailVerified"),
                 result.getBoolean("siteAdmin")
         );
     }
