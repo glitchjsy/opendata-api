@@ -278,6 +278,7 @@ public class Server {
         app.post("/auth/login", authController::handleLogin);
         app.post("/auth/register", authController::handleRegister);
         app.post("/auth/verify-email", authController::handleVerifyEmail);
+        app.get("/auth/logout", authController::handleLogout);
 
         app.get("/me/session", meController::handleGetSession);
         app.get("/me/api-keys", meController::handleListApiKeys);

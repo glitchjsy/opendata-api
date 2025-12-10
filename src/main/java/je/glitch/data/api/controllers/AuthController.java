@@ -69,4 +69,12 @@ public class AuthController {
             ctx.status(400).json(new ErrorResponse(ErrorType.INVALID_REQUEST, ex.getMessage()));
         }
     }
+
+    public void handleLogout(Context ctx) {
+        if (ctx.req().getSession(false) != null) {
+            ctx.req().getSession().invalidate();
+        }
+        ctx.removeCookie("JSESSIONID");
+        ctx.redirect("https://opendata.je/login");
+    }
 }
