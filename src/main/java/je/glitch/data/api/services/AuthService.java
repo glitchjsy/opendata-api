@@ -37,6 +37,9 @@ public class AuthService {
         if (!BCrypt.checkpw(loginBody.getPassword(), user.getPassword())) {
             return null;
         }
+        if (!user.isEmailVerified()) {
+            throw new HttpException(ErrorType.FORBIDDEN, 403, "Please verify your email");
+        }
         return new Session(new Date(), user.getId());
     }
 
