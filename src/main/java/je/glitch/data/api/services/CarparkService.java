@@ -1,5 +1,7 @@
 package je.glitch.data.api.services;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import je.glitch.data.api.cache.RedisCache;
 import je.glitch.data.api.database.MySQLConnection;
 import je.glitch.data.api.models.Carpark;
@@ -73,5 +75,9 @@ public class CarparkService {
         stats.put("availabilityLastYear", connection.getCarparkTable().getAvailabilityLastYear());
         stats.put("availabilityThisYear", connection.getCarparkTable().getAvailabilityThisYear());
         return stats;
+    }
+
+    public JsonArray getAllSpacesData() {
+        return connection.getCarparkTable().getAllSpacesData();
     }
 }

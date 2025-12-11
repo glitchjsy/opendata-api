@@ -1,5 +1,7 @@
 package je.glitch.data.api.database.tables;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.zaxxer.hikari.HikariDataSource;
 import je.glitch.data.api.models.Carpark;
 import je.glitch.data.api.models.LiveParkingSpace;
@@ -119,6 +121,33 @@ public class CarparkTable implements ITable {
             }
         } catch (Exception ex) {
             return new ArrayList<>();
+        }
+    }
+
+    public JsonArray getAllSpacesData() {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT name, createdAt, spaces, status, open FROM liveParkingSpaces ORDER BY createdAt DESC"
+            );
+
+            try (ResultSet result = stmt.executeQuery()) {
+                JsonArray array = new JsonArray();
+
+                while (result.next()) {
+                    JsonArray row = new JsonArray();
+                    row.add(result.getString("createdAt"));
+                    row.add(result.getString("name"));
+                    row.add(result.getInt("spaces"));
+                    row.add(result.getString("status"));
+                    row.add(result.getBoolean("open"));
+
+                    array.add(row);
+                }
+                return array;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new JsonArray();
         }
     }
 

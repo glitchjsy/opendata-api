@@ -1,8 +1,12 @@
 package je.glitch.data.api.controllers.v1;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import je.glitch.data.api.models.ApiResponse;
+import je.glitch.data.api.models.Vehicle;
 import je.glitch.data.api.services.VehicleService;
 import je.glitch.data.api.utils.ErrorResponse;
 import je.glitch.data.api.utils.ErrorType;
@@ -10,11 +14,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
 public class VehicleController {
+    private static final Gson compactGson = new GsonBuilder().create();
     private final VehicleService service;
 
     public void handleGetVehicles(Context ctx) {
