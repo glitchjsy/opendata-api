@@ -62,6 +62,7 @@ public class Server {
     private final FoiController foiController;
     private final CourtController courtController;
     private final PetitionController petitionController;
+    private final EVStationController evStationController;
 
     private final AdminUsersController adminUsersController;
     private final AdminTokensController adminTokensController;
@@ -90,6 +91,7 @@ public class Server {
         this.foiController = new FoiController(new FoiService(connection));
         this.courtController = new CourtController(new CourtService(connection));
         this.petitionController = new PetitionController(connection);
+        this.evStationController = new EVStationController(new EVStationService(connection));
 
         try {
             this.emailService = new EmailService();
@@ -237,6 +239,7 @@ public class Server {
         app.get("/v1/toilets", simpleEndpointController::handleGetToilets);
         app.get("/v1/recycling", simpleEndpointController::handleGetRecycling);
         app.get("/v1/defibrillators", simpleEndpointController::handleGetDefibrillators);
+        app.get("/v1/ev-chargers", evStationController::handleGetStations);
         app.get("/v1/foi-requests", foiController::handleGetFoiRequests);
         app.get("/v1/foi-requests/stats", foiController::handleGetStats);
         app.get("/v1/foi-requests/authors", foiController::handleGetAuthors);

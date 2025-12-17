@@ -268,7 +268,7 @@ CREATE TABLE `petitions` (
 );
 
 CREATE TABLE `petitionMinistersResponses` (
-    `id` int AUTO_INCREMENT NOT NULL,
+    `id` int auto_increment NOT NULL,
     `createdAt` datetime NOT NULL,
     `updatedAt` datetime NOT NULL,
     `publishedOn` date NOT NULL,
@@ -280,7 +280,7 @@ CREATE TABLE `petitionMinistersResponses` (
 );
 
 CREATE TABLE `petitionDebates` (
-    `id` int AUTO_INCREMENT NOT NULL,
+    `id` int auto_increment NOT NULL,
     `debatedOn` date NOT NULL,
     `petitionId` bigint NOT NULL,
     `transcriptUrl` varchar(255),
@@ -292,10 +292,24 @@ CREATE TABLE `petitionDebates` (
 );
 
 CREATE TABLE `petitionSignaturesByParish` (
-    `id` int AUTO_INCREMENT NOT NULL,
+    `id` int auto_increment NOT NULL,
     `petitionId` bigint NOT NULL,
     `parishName` varchar(50),
     `signatureCount` int,
     FOREIGN KEY (`petitionId`) REFERENCES `petitions`(`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `evStations` (
+    `id` int NOT NULL,
+    `createdAt` datetime NOT NULL,
+    `name` varchar(255),
+    `address` varchar(255),
+    `parish` varchar(100),
+    `latitude` decimal(10,7),
+    `longitude` decimal(10,7),
+    `provider` varchar(100),
+    `operatorName` varchar(100),
+    `rapid` boolean DEFAULT 0 NOT NULL,
     PRIMARY KEY (`id`)
 );

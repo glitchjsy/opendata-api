@@ -17,6 +17,7 @@ public class MySQLConnection {
     private final FoiTable foiTable;
     private final CourtTable courtTable;
     private final PetitionTable petitionTable;
+    private final EVStationTable evStationTable;
 
     public MySQLConnection() {
         this.connect();
@@ -29,6 +30,7 @@ public class MySQLConnection {
         this.foiTable = new FoiTable(dataSource);
         this.courtTable = new CourtTable(dataSource);
         this.petitionTable = new PetitionTable(dataSource);
+        this.evStationTable = new EVStationTable(dataSource);
     }
 
     private void connect() {
